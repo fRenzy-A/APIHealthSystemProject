@@ -8,6 +8,8 @@ namespace APIHealthSystemProject
 {
     internal class Program
     {
+        static string healthOVER;
+        static string healthStatues;
         static int health;
         static int shield;
         static int lives;
@@ -22,85 +24,92 @@ namespace APIHealthSystemProject
             level = 1;
 
             Heal(100);
-            RegenShield(10);
-            TakeDamage(600);
-            LevelUp(400);
-            Console.WriteLine();
-            UI_Info();
             ShowHUD();
 
+            RESET();
+            TakeDamage(140);           
+            ShowHUD();
+
+            RESET();
+            LevelUp(600);            
+            ShowHUD();
+
+            RESET();
+            RegenShield(10);
+            ShowHUD();
+            Heal(10);
+            TakeDamage(100);
+            ShowHUD();
+
+            RESET();
+            TakeDamage(200);
+            ShowHUD();
+            
            
             Console.ReadKey(true);
         }
 
-        static void ShowHUD()
+        static void UpdateHealthStatus()
         {
             if (health > 100)
             {
-                Console.WriteLine();
-                Console.WriteLine("==============================");
-                Console.WriteLine("|OVER| Health: " + health);
-                Console.WriteLine("Shield: " + shield);
-                Console.WriteLine("Level: " + level + "|EXP: " + experience);
-                Console.WriteLine("Lives: " + lives);
-                Console.WriteLine("==============================");
-                Console.WriteLine();
+                healthOVER = "|OVER| ";
             }
             else if (health <= 75 && health >= 25)
             {
-                Console.WriteLine();
-                Console.WriteLine("==============================");
-                Console.WriteLine("Health: " + health + " |HURT|");
-                Console.WriteLine("Shield: " + shield);
-                Console.WriteLine("Level: " + level + "|EXP: " + experience);
-                Console.WriteLine("Lives: " + lives);
-                Console.WriteLine("==============================");
-                Console.WriteLine();
+                healthStatues = "|HURT|";
             }
             else if (health <= 25)
             {
-                Console.WriteLine();
-                Console.WriteLine("==============================");
-                Console.WriteLine("Health: " + health + " |DANGER|");
-                Console.WriteLine("Shield: " + shield);
-                Console.WriteLine("Level: " + level + "|EXP: " + experience);
-                Console.WriteLine("Lives: " + lives);
-                Console.WriteLine("==============================");
-                Console.WriteLine();
+                healthStatues = "|DANGER|";
             }
-
             else
             {
-                Console.WriteLine();
-                Console.WriteLine("==============================");
-                Console.WriteLine("Health: " + health);
-                Console.WriteLine("Shield: " + shield);
-                Console.WriteLine("Level: " + level + "|EXP: " + experience);
-                Console.WriteLine("Lives: " + lives);
-                Console.WriteLine("==============================");
-                Console.WriteLine();
+                
             }
         }
 
-
-        static void RESET()
+        static void ShowHUD()
         {
-            Console.WriteLine("All stats reset");
+            Console.WriteLine();
+            Console.WriteLine("==============================");
+            Console.WriteLine(healthOVER + "Health: " + health + " " + healthStatues);
+            Console.WriteLine("Shield: " + shield);
+            Console.WriteLine("Level: " + level + "|EXP: " + experience);
+            Console.WriteLine("Lives: " + lives);
+            Console.WriteLine("==============================");
+            Console.WriteLine();
+        }
+
+
+        static void RESET() // Resets all stats to default when called
+        {
+            Console.WriteLine("Game reset");
+            Console.WriteLine();
             health = 100;
             shield = 100;
             lives = 3;
+            experience = 0;
+            level = 1;
+            healthStatues = "";
+            healthOVER = "";
+            UpdateHealthStatus();
         }
-        static void Heal(int healup)
+
+        static void Heal(int healup) // Heal method
         {
             int currenthealth = health;
             if (healup > 0)
             {
                 Console.WriteLine("DEBUG: About to heal for " + healup + "HP");
+                Console.WriteLine();
             }
             currenthealth = currenthealth + healup;
             if (currenthealth > 150)
             {
-                health = 150;
+                currenthealth = 150;
+                health = currenthealth;
+                Console.WriteLine("Max |OVERHEAL|");
             }
             else if (healup < 0)
             {
@@ -111,19 +120,24 @@ namespace APIHealthSystemProject
             {
                 health = currenthealth;
             }
+
+            UpdateHealthStatus();
         }
 
-        static void RegenShield(int shieldrepair)
+        static void RegenShield(int shieldrepair) // Shield method
         {
             int currentshield = shield;
             if (shieldrepair > 0)
             {
                 Console.WriteLine("DEBUG: About to repair " + shieldrepair + " SHIELD");
+                Console.WriteLine();
             }
             currentshield = currentshield + shieldrepair;
             if (currentshield > 100)
             {
-                shield = 100;
+                currentshield = 100;
+                shield = currentshield;
+                Console.WriteLine("|FULL| Shield");
             }
             if (shieldrepair < 0)
             {
@@ -135,12 +149,13 @@ namespace APIHealthSystemProject
                 shield = currentshield;
             }
         }
-        static void LevelUp(int currentEXP)
+        static void LevelUp(int currentEXP) // EXP method
         {
             int expCap = 100;
             if (currentEXP > 0)
             {
                 Console.WriteLine("DEBUG: About to gain " + currentEXP + " points of experience");
+                Console.WriteLine();
             }
           
             Console.WriteLine();
@@ -150,18 +165,18 @@ namespace APIHealthSystemProject
                 level = level + 1;
                 currentEXP = currentEXP - expCap;
                 expCap = expCap + expCap;
-                
+                Console.WriteLine("LEVEL UP");
             }
             experience = currentEXP;
             
         }
-        static void TakeDamage(int damage)
+        static void TakeDamage(int damage) // Damage method
         {
             if (damage > 0)
             {
                 Console.WriteLine("DEBUG: About to take " + damage + "damage");
             }
-            if (shield < damage)
+            if (shield < damage) // Spillover
             {
                 health = (health + shield) - damage;
                 shield = 0;
@@ -180,31 +195,15 @@ namespace APIHealthSystemProject
                 lives = lives - 1;
                 health = 100;
                 shield = 100;
+                experience = 0;
+                healthStatues = "";
             }
             if (lives == 0)
             {
                 Console.WriteLine("No lives left. Game Over");
             }
-            
-        }
-        static void UI_Info()
-        {
-            if (health > 150)
-            {
-                Console.WriteLine("Max |OVERHEAL|");
-            }
-            if (shield > 100)
-            {
-                Console.WriteLine("|FULL| Shield");
-            }
-            if (experience > 0)
-            {
-                Console.WriteLine("You have " + experience + " EXP");
-            }
-            if (level + 1 > level)
-            {
-                Console.WriteLine("You LEVELED up");
-            }
+
+            UpdateHealthStatus();
         }
     }
 }
