@@ -23,28 +23,35 @@ namespace APIHealthSystemProject
             experience = 0;
             level = 1;
 
-            Heal(100);
+            ShowHUD();
+            Heal(30);
             ShowHUD();
 
             RESET();
-            TakeDamage(140);           
+            ShowHUD();
+            TakeDamage(140);
             ShowHUD();
 
             RESET();
-            LevelUp(600);            
+            ShowHUD();
+            RegenShield(5);
             ShowHUD();
 
             RESET();
-            RegenShield(10);
             ShowHUD();
-            Heal(10);
-            TakeDamage(100);
+            LevelUp(400);
             ShowHUD();
 
             RESET();
-            TakeDamage(200);
             ShowHUD();
-            
+            TakeDamage(230);
+            ShowHUD();
+
+            RESET();
+            ShowHUD();
+            Heal(-30);
+            TakeDamage(-100);
+            ShowHUD();
            
             Console.ReadKey(true);
         }
@@ -176,7 +183,12 @@ namespace APIHealthSystemProject
             {
                 Console.WriteLine("DEBUG: About to take " + damage + "damage");
             }
-            if (shield < damage) // Spillover
+            if (damage < 0)
+            {
+                Console.WriteLine("DEBUG: About to take " + damage + " damage");
+                Console.WriteLine("ERROR: Cannot have a negative damage integer value");
+            }
+            else if (shield < damage) // Spillover
             {
                 health = (health + shield) - damage;
                 shield = 0;
